@@ -12,6 +12,7 @@ namespace ManejoPresupuesto.Servicios
         Task<bool> Existe(string nombre, int usuarioId);
         Task<IEnumerable<TipoCuenta>> Obtener(int usuarioId);
         Task<TipoCuenta> ObtenerPorId(int id, int usuarioId);
+        Task Ordenar(IEnumerable<TipoCuenta> tipoCuentasOrdenados);
     }
     public class RepositorioTiposCuentas : IRepositorioTiposCuentas
     {
@@ -29,9 +30,10 @@ namespace ManejoPresupuesto.Servicios
             using var connection = new SqlConnection(connectionString);
             //Al pasar como parametro TipoCuenta, va tomar los valores del Modelo TipoCuenta, como es Nombre, Usuario Id
             var id = await connection.QuerySingleAsync<int>
-                                                    (@"INSERT INTO TipoCuenta (Nombre, UsuarioId, Orden)
-                                                    Values (@Nombre, @UsuarioId, 0);
-                                                    SELECT SCOPE_IDENTITY();", tipoCuenta);
+                                                    ("TipoCuenta_Insertar", 
+                                                    new {usuarioId = tipoCuenta.UsuarioId,
+                                                    nombre = tipoCuenta.Nombre},
+                                                    commandType: System.Data.CommandType.StoredProcedure);
             tipoCuenta.Id = id;
         }
 
@@ -58,7 +60,8 @@ namespace ManejoPresupuesto.Servicios
             //QueryAsync permite realizar el query de SELECT a la base de datos, traera los resultados y los mapea a la clase TipoCuenta
             return await connection.QueryAsync<TipoCuenta>(@"SELECT Id, Nombre, Orden 
                                                 FROM TipoCuenta     
-                                                WHERE UsuarioId = @UsuarioId;", new {usuarioId});
+                                                WHERE UsuarioId = @UsuarioId
+                                                ORDER BY Orden", new {usuarioId});
         }
 
         //Creamos el método para actualizar los tipos de cuentas
@@ -88,6 +91,15 @@ namespace ManejoPresupuesto.Servicios
         {
             using var connection = new SqlConnection(connectionString); 
             await connection.ExecuteAsync("DELETE TipoCuenta WHERE Id= @Id", new { id });
+        }
+
+        //Método para ordenar la tabla de acuerdo a lo que el usuario indico en el arrastre
+
+        public async Task Ordenar(IEnumerable<TipoCuenta> tipoCuentasOrdenados)
+        {
+            var query = "UPDATE TipoCuenta SET Orden = @Orden WHERE Id = @Id;";
+            using var connection = new SqlConnection(connectionString);
+            await connection.ExecuteAsync(query, tipoCuentasOrdenados);
         }
     }
 }

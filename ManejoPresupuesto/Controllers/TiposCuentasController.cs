@@ -160,6 +160,25 @@ namespace ManejoPresupuesto.Controllers
 
         public async Task <IActionResult> Ordenar([FromBody] int[] ids)
         {
+            var usuarioId = servicioUsuarios.ObtenerUsuarioId();
+            var tiposCuentas = await repositorioTiposCuentas.Obtener(usuarioId);
+             //Obtenemos los Id de los tipos cuentas
+            var idsTiposCuentas = tiposCuentas.Select(x => x.Id);
+
+            //Verificamos que los Ids que estamos recibiendo, pertenezcan al usuario.
+            var idsTiposCuentasNoPerteneceAlUsuario = ids.Except(idsTiposCuentas).ToList();
+
+            if (idsTiposCuentasNoPerteneceAlUsuario.Count > 0)
+            {
+                //Retornamos que está prohibido
+                return Forbid();
+            }
+
+            //Si los Ids que estamos recibiendo sí pertenecen al usuario.
+            var tiposCuentasOrdenados = ids.Select((valor, indice) =>
+                new TipoCuenta() {Id = valor, Orden = indice + 1}).AsEnumerable();
+
+            await repositorioTiposCuentas.Ordenar(tiposCuentasOrdenados);
             return Ok();
         }
     }
