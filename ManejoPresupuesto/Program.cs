@@ -8,6 +8,13 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddTransient<IRepositorioTiposCuentas, RepositorioTiposCuentas>();
 //Configuramos el servicio de Usuarios y lo creamos como Transient porque no comparte codigo entre distintas instancia del servicio
 builder.Services.AddTransient<IServicioUsuarios, ServicioUsuario>();
+//Configuramos el servicio Cuentas que contiene el método para crear una cuenta
+builder.Services.AddTransient<IRepositorioCuentas, RepositorioCuentas>();
+//Configuramos el servicio de IRepositorioCategorias
+builder.Services.AddTransient<IRepositorioCategorias, RepositorioCategorias>();
+//Configuramos AutoMapper
+builder.Services.AddAutoMapper(typeof(Program));
+
 
 var app = builder.Build();
 
