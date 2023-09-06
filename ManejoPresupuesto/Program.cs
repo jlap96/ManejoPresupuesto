@@ -12,6 +12,8 @@ builder.Services.AddTransient<IServicioUsuarios, ServicioUsuario>();
 builder.Services.AddTransient<IRepositorioCuentas, RepositorioCuentas>();
 //Configuramos el servicio de IRepositorioCategorias
 builder.Services.AddTransient<IRepositorioCategorias, RepositorioCategorias>();
+//Configuramos el servicio de IRepositorioTransacciones (repositorio)
+builder.Services.AddTransient<IRepositorioTransacciones, RepositorioTransacciones>();
 //Configuramos AutoMapper
 builder.Services.AddAutoMapper(typeof(Program));
 
