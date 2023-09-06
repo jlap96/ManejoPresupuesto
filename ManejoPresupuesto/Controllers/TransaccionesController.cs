@@ -152,6 +152,26 @@ namespace ManejoPresupuesto.Controllers
             return RedirectToAction("Index");
         }
 
+        //Creamos la acción de borrar que permite al usuario borrar la transacción desde la pantalla de editar transacciones
+
+        [HttpPost]
+        public async Task<IActionResult> Borrar(int id)
+        {
+            var usuarioId = servicioUsuarios.ObtenerUsuarioId();
+
+            //Buscamos la transacción por su Id y el usuario Id
+            var transaccion = await repositorioTransacciones.ObtenerPorId(id, usuarioId);
+
+            if(transaccion is null)
+            {
+                return RedirectToAction("NoEncontrado", "Home");
+            }
+
+            await repositorioTransacciones.Borrar(id);
+            return RedirectToAction("Index");
+
+        }
+
         //Creamnos un método privado para obtener las cuentas
         private async Task<IEnumerable<SelectListItem>> ObtenerCuentas(int usuarioId)
         {

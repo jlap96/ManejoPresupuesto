@@ -10,6 +10,7 @@ namespace ManejoPresupuesto.Servicios
     public interface IRepositorioTransacciones
     {
         Task Actualizar(Transaccion transaccion, decimal montoAnterior, int cuentaAnterior);
+        Task Borrar(int id);
         Task Crear(Transaccion transaccion);
         Task<Transaccion> ObtenerPorId(int id, int usuarioId);
     }
@@ -73,6 +74,17 @@ namespace ManejoPresupuesto.Servicios
                 WHERE Transacciones.Id = @Id AND Transacciones.UsuarioId = @UsuarioId",
                 new { id, usuarioId });
         }
+
+        //Creamos el método para borrar, que utilizará el procedimiento almacenado que creamos para borrar
+        public async Task Borrar(int id)
+        {
+            using var connection = new SqlConnection(connectionString);
+            await connection.ExecuteAsync("Transacciones_Borrar",
+                new { id }, commandType: System.Data.CommandType.StoredProcedure);
+
+            //Una vez creado el método de borrar, creamos la acción borrar en TransaccionesController 
+        }
+
 
     }
 }
